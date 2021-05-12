@@ -30,14 +30,13 @@ EXT_ORDER = config['EXT_ORDER']
 NAPT_ZIP_LINK = config["NAPT_ZIP_LINK"]
 
 # Define the columns wanted from Naptan
-COLS = list(config["NAPTAN_TYPES"].keys())
 NAPTAN_DTYPES = config["NAPTAN_TYPES"]
 # Get the pandas dataframe for the stops data
 stops_df = any_to_pd(file_nm="Stops", 
-                     zip_link=NAPT_ZIP_LINK, 
+                     file_url=NAPT_ZIP_LINK, 
                      ext_order=EXT_ORDER,
                      dtypes=NAPTAN_DTYPES)
-
+#Convert stops_df into geo_df
 stops_geo_df = (geo_df_from_pd_df(pd_df=stops_df,
                                 geom_x='Easting',
                                 geom_y='Northing',
@@ -55,7 +54,6 @@ just_birmingham_poly = (get_polygons_of_loccode(
                         search="Birmingham"))
 
 # Creating a Geo Dataframe of only stops in Birmingham
-
 birmingham_stops_geo_df = (find_points_in_poly
                            (geo_df=stops_geo_df,
                             polygon_obj=just_birmingham_poly))
@@ -73,7 +71,13 @@ uk_pop_wtd_centr_df = (geo_df_from_geospatialfile
                          'pop_weighted_centroids')))
 
 # Get output area boundaries
-OA_df = pd.read_csv('https://opendata.arcgis.com/datasets/7763a773b61445128ed3251e27be5139_0.csv?outSR=%7B%22latestWkid%22%3A27700%2C%22wkid%22%3A27700%7D')
+OA_data_url = config["OA_data_url"]
+OA_data_name = config["OA_data_name"]
+OA_dtypes = config["OA_dtypes"]
+OA_df = any_to_pd(file_nm=OA_data_name,
+                  file_url=OA_data_url, 
+                  ext_order=['csv'],
+                  dtypes=OA_dtypes)
 
 # Merge with uk population df
 uk_pop_wtd_centr_df = uk_pop_wtd_centr_df.merge(OA_df, on="OA11CD", how='left')
@@ -87,7 +91,8 @@ Urb_Rur_ZIP_LINK = config["Urb_Rur_ZIP_LINK"]
 URB_RUR_TYPES = config["URB_RUR_TYPES"]
 
 # Make a df of the urban-rural classification
-urb_rur_df = any_to_pd("RUC11_OA11_EW", Urb_Rur_ZIP_LINK, ['csv'], URB_RUR_TYPES)
+urb_rur_name = config["urb_rur_name"]
+urb_rur_df = any_to_pd(urb_rur_name, Urb_Rur_ZIP_LINK, ['csv'], URB_RUR_TYPES)
 
 # These are the codes (RUC11CD) mapping to rural and urban descriptions (RUC11)
 # I could make this more succinct, but leaving here for clarity and maintainability

@@ -1,4 +1,9 @@
 NAPT_ZIP_LINK : "http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv"
+NAPTAN_TYPES :
+  NaptanCode: str
+  CommonName: str
+  Easting: int32
+  Northing: int32
 DEFAULT_CRS : 'EPSG:27700'
 DATA_DIR :  "./data"
 EXT_ORDER :
@@ -6,11 +11,17 @@ EXT_ORDER :
   - csv
   - zip
 Urb_Rur_ZIP_LINK : https://www.arcgis.com/sharing/rest/content/items/3ce248e9651f4dc094f84a4c5de18655/data
-NAPTAN_TYPES :
-  NaptanCode: str
-  CommonName: str
-  Easting: int32
-  Northing: int32
+urb_rur_name: RUC11_OA11_EW
 URB_RUR_TYPES:
   OA11CD: str
   RUC11CD: category
+OA_data_url: https://opendata.arcgis.com/datasets/7763a773b61445128ed3251e27be5139_0.csv?outSR=%7B%22latestWkid%22%3A27700%2C%22wkid%22%3A27700%7D
+OA_data_name: "Output_Areas__December_2011__Boundaries_EW_BFE"
+OA_dtypes:
+  OBJECTID: int32
+  OA11CD: str
+  LAD11CD: str
+  LAD16CD: str
+  LAD16NM: str
+  Shape__Area: float 
+  Shape__Length: float

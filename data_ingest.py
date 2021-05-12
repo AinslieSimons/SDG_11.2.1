@@ -2,6 +2,7 @@
 import os
 import json
 from functools import lru_cache
+from time import perf_counter
 
 # Third party imports for this module
 import geopandas as gpd
@@ -15,7 +16,7 @@ from typing import List, Set, Dict, Tuple, Optional, Union
 # Types
 PathLike = Union[str, bytes, os.PathLike]
 
-def any_to_pd(file_nm: str, zip_link: str, ext_order: List, dtypes:Optional[Dict]) -> pd.DataFrame:
+def any_to_pd(file_nm: str, file_url: str, ext_order: List, dtypes:Optional[Dict]) -> pd.DataFrame:
     """
     A function which ties together many other data ingest related functions.
         The main purpose is to check for locally stored persistent data 
@@ -56,26 +57,34 @@ def any_to_pd(file_nm: str, zip_link: str, ext_order: List, dtypes:Optional[Dict
         continue # None of the persistent files has been found. 
     # Continue onto the next file type 
     # A zip must be downloaded, extracted, and turned into pd_df
-    pd_df = load_func_dict[data_file_nm](file_nm, 
-                                        data_file_path,
-                                        persistent_exists=False,
-                                        zip_url=zip_link,
-                                        dtypes=dtypes)
+    pd_df = load_funcs[ext_order[i]](file_nm, 
+                                    data_file_path,
+                                    file_url,
+                                    dtypes=dtypes,
+                                    persistent_exists=False)
     return pd_df
 
 def feath_to_df(file_nm, feather_path: PathLike):
     print(f"Reading {file_nm}.feather from {feather_path}.")
+    tic = perf_counter()
     pd_df = pd.read_feather(feather_path)
+    toc = perf_counter()
+    print(f"Time taken for feather reading is {toc - tic:.2f} seconds")
     return pd_df
 
-def csv_to_df(file_nm, csv_path: PathLike, dtypes: Optional[Dict]): #*cols: Optional[List],
+def csv_to_df(file_nm, csv_path: PathLike, dtypes: Optional[Dict], persistent_exists=True): #*cols: Optional[List],
     print(f"Reading {file_nm}.csv from {csv_path}.")
     if dtypes:
         cols = list(dtypes.keys())
+        tic = perf_counter()
         pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes)
+        toc = perf_counter()
+        print(f"Time taken for csv reading is {toc - tic:.2f} seconds")
     else:
         pd_df = pd.read_csv(csv_path)
-    pd_to_feather(pd_df, csv_path)
+    # Calling the pd_to_feather function to make a persistent feather file
+    # for faster retrieval
+    pd_to_feather(file_nm, pd_df, csv_path, persistent_exists)
     return pd_df
     
 def import_extract_delete_zip(file_nm: str, zip_path:PathLike, 
@@ -85,12 +94,11 @@ def import_extract_delete_zip(file_nm: str, zip_path:PathLike,
                               **dtypes):
     if not persistent_exists:
         grab_zip(file_nm, zip_url, zip_path)
-    
     csv_nm = file_nm + ".csv"
     csv_path = make_data_path("data", csv_nm)
     extract_zip(file_nm, csv_nm, zip_path, csv_path)
     delete_junk(file_nm, zip_path)
-    pd_df = csv_to_df(file_nm, csv_path, cols, dtypes)
+    pd_df = csv_to_df(file_nm, csv_path, dtypes)
     return pd_df
 
 def grab_zip(file_nm: str, zip_link, zip_path: PathLike):
@@ -112,7 +120,6 @@ def delete_junk(file_nm: str, zip_path):
     print(f"Deleting {file_nm} from {zip_path}")
     os.remove(zip_path)
 
-@lru_cache
 def make_data_path(*data_dir_files: str) -> PathLike:
     """Makes a relative path pointing to the data directory
 
@@ -127,7 +134,6 @@ def make_data_path(*data_dir_files: str) -> PathLike:
     data_path = os.path.join(*data_dir_files)
     return data_path
 
-@lru_cache 
 def persistent_exists(persistent_file_path):
     """Checks if a persistent file already exists or not. 
         Since persistent files will be Apache feather format 
@@ -139,11 +145,16 @@ def persistent_exists(persistent_file_path):
         print(f"{persistent_file_path} does not exist")
         return False 
 
-def pd_to_feather(pd_df, current_file_path):
+def pd_to_feather(file_nm, pd_df, current_file_path, persistent_exists):
     """Writes a Pandas dataframe to feather for quick reading 
         and retrieval later.
     """
-    feather_path = os.path.splitext(current_file_path)[0]+'.feather'
+    # If persistent file does not exist, then data is not local
+    # 
+    if not persistent_exists:
+        feather_path = os.path.join("data","file_nm",".feather")
+    else:
+        feather_path = os.path.splitext(current_file_path)[0]+'.feather'
     if not os.path.isfile(feather_path):
         print(f"Writing Pandas dataframe to feather at {feather_path}")
         feather.write_feather(pd_df, feather_path)
