@@ -100,7 +100,8 @@ Showing your are using the Python from the virtual environment, not the base ins
 
 ### Install the dependencies
 
-You should be in correct directory, where `requirements.txt` exists. Run:
+
+You should be in correct directory, where [`requirements.txt`](_build\html\_sources\requirements.txt) exists. Run:
 
     (SDG_11.2.1) $ pip install -r requirements.txt
 
