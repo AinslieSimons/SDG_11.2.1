@@ -1,0 +1,22 @@
+.. SDG 11.2.1 Availability of Public Transport in the UK documentation master file, created by
+   sphinx-quickstart on Mon Jun  7 15:55:20 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to SDG 11.2.1 Availability of Public Transport in the UK's documentation!
+=================================================================================
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   
+   README
+   Installation Requirements <requirements.txt>
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

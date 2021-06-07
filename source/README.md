@@ -1,19 +1,21 @@
 # Project: Analysis_SDG_11.2.1
 
-This is project to build a data pipeline to analyse data for the UN Sustainable Development Goal indicator 11.2.1, which is part of goal 11:
+This is project to build a data pipeline to analyse data for the UN Sustainable Development Goal indicator 11.2.1, which is part of goal 11 which has the aim to:
 
 > "Make cities and human settlements inclusive, safe, resilient and sustainable"
+# Method
 
-By assessing geographical and census data with data on public transport access points (stops and stations), an assessment can be made about the degree of acessability individuals in the population have to public transport. 
+By assessing geocoded census data and geocoded public transport access points (stops and stations), an assessment can be made about the degree of accessibility individuals in the population have to public transport.
 
+# Accessibility
 
-## Description of Target 11.2
-By 2030, provide access to safe, affordable, accessible and sustainable transport systems for all, improving road safety, notably by expanding public transport, with special attention to the needs of those in vulnerable situations, women, children, persons with disabilities and older persons 
+A stop or station is considered 'accessible' if it is within 500 metres of a person's place of living. That distance is the one given by official methodology. We recognise this is a problematic and arbitrary figure. How accessible a public transport access point to an individual will depend on many factor such as:
 
-
-## Description of Indicator 11.2.1
-"Proportion of population that has convenient access to public transport, by sex, age and persons with disabilities"
-
+- the individual’s physical abilities
+- certain disabilities
+- gradient
+- path quality
+- obstacles (e.g. a fence in the way of an otherwise close access point)
 
 ## Aims of the project
 
@@ -23,6 +25,10 @@ The aims are:
 * to make the code reusable so that it may be able to analyse other data and:
     * assess the availability of other services across the UK
     * be used to assess the availability of services in other nations
+
+# The team
+
+The coding of this project has been carried out primarily by staff at the Office for National Statistics. The primary programmer and project lead is James Westwood. Geospatial advice has been given Musa Chirikeni. Planning help, advice and support was provided by Lucy Gwilliam. And assistance with the planning of the original method and code was provided by Michael Hodge.
 
 ## Process
 
@@ -60,6 +66,8 @@ A number of problems with dependencies have been experienced while developing th
 
 ### Create an environment 
 
+I strongly recommend using an environment to minimise dependeny issues and avoid 'polluting' your main/base Python environment. Throughout this project mini conda has been used to install dependencies and create environments. 
+
 Here creating an environment called "SDG_11.2.1" with the version of Python that this was developed in
 
     conda create --name SDG_11.2.1 python=3.8
@@ -69,7 +77,9 @@ Here creating an environment called "SDG_11.2.1" with the version of Python that
 First go to the project directory 
 
     $ cd project-directory
-    
+
+So in my case, the project directory was also called "SDG_11.2.1" (the same as the environment.)
+
 Then activate the environment
 
     $ conda activate SDG_11.2.1
@@ -82,7 +92,7 @@ Then you should see the environment name in brackets before the prompt, similar 
 
     (SDG_11.2.1) $
 
-Make sure you are using the correct Python interpreter by checking your Python path:
+As a quick check to see if the environment is activated, it might be wise to make sure you are using the correct Python interpreter by checking your Python path:
 
 In Linux:
 
