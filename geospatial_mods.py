@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Third party imports for this module
 import geopandas as gpd
 import pandas as pd
@@ -28,16 +29,17 @@ def get_polygons_of_loccode(geo_df: gpd.GeoDataFrame,
     return polygon_df
 
 
-def buffer_points((geo_df: gpd.GeoDataFrame,
-                  metres=500: int) -> gpd.GeoDataFrame):
+def buffer_points(geo_df: gpd.GeoDataFrame,
+                  metres=500) -> gpd.GeoDataFrame):
     """
     Provide a Geo Dataframe with points you want buffering.
     Draws a 5km (radius) buffer around the points.
     Puts the results into a new column called "buffered"
     As 'epsg:27700' projections units of km, 500m is 0.5km.
     """
-    geo_df['geometry'] = geo_df.geometry.buffer(metres)
+    geo_df['geometry']=geo_df.geometry.buffer(metres)
     return geo_df
+
 
 def find_points_in_poly(geo_df: gpd.GeoDataFrame, polygon_obj):
     """Find points in polygon using geopandas' spatial join
@@ -55,16 +57,16 @@ def find_points_in_poly(geo_df: gpd.GeoDataFrame, polygon_obj):
 
         Returns:
             A geodata frame with the points inside the supplied polygon"""
-    wanted_cols = geo_df.columns.to_list()
-    joined_df = (gpd.sjoin
+    wanted_cols=geo_df.columns.to_list()
+    joined_df=(gpd.sjoin
                  (geo_df,
                   polygon_obj,
                   how='left',
                   op='intersects'))  # op = 'within'
-    filtered_df = (joined_df
+    filtered_df=(joined_df
                    [joined_df
                     ['index_right'].notna()])
-    filtered_df = filtered_df[wanted_cols]
+    filtered_df=filtered_df[wanted_cols]
     return filtered_df
 
 
@@ -79,7 +81,7 @@ def poly_from_polys(geo_df):
         class Polygon : a combined polygon which is the perimter of the
             polygons provided. (shapely.geometry.polygon.Polygon)
     """
-    poly = unary_union(list(geo_df.geometry))
+    poly=unary_union(list(geo_df.geometry))
     return poly
 
 
@@ -93,15 +95,13 @@ def ward_nrthng_eastng(district: str, ward: str):
     Returns:
         [type]: [description]
     """
-    csvurl = f"https://www.doogal.co.uk/AdministrativeAreasCSV.ashx?district={district}&ward={ward}"
-    df = pd.read_csv(csvurl, usecols=['Easting', 'Northing'])
-    eastings = [easting for easting in df.Easting]
-    northings = [northing for northing in df.Northing]
-    mins_maxs = {
+    csvurl=f"https://www.doogal.co.uk/AdministrativeAreasCSV.ashx?district={district}&ward={ward}"
+    df=pd.read_csv(csvurl, usecols = ['Easting', 'Northing'])
+    eastings=[easting for easting in df.Easting]
+    northings=[northing for northing in df.Northing]
+    mins_maxs={
         "e_min": min(eastings),
         "e_max": max(eastings),
         "n_min": min(northings),
         "n_max": max(northings)}
     return mins_maxs
-
-

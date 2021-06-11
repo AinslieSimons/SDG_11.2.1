@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def create_db_connection(host_name, user_name, user_password, db_name):
     """Connecting to SQL Server (probably MySQL eventually BigQuery)"""
     connection = None
@@ -13,6 +14,7 @@ def create_db_connection(host_name, user_name, user_password, db_name):
         print(f"Error: '{err}'")
 
     return connection
+
 
 def populate_table():
     """Populating the SQL Tables"""

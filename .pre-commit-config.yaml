@@ -5,8 +5,8 @@ repos:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
-    -   id: check-ast
-    -   id: check-yaml
+    # -   id: check-ast
+    # -   id: check-yaml
     -   id: fix-encoding-pragma
     -   id: requirements-txt-fixer
     -   id: sort-simple-yaml

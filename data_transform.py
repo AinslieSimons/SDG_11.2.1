@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import List
 import pandas as pd
 
@@ -16,8 +17,8 @@ def slice_age_df(df: pd.DataFrame, col_nms: List[str]):
 
 
 def get_col_bins(col_nms: List[str]) -> List[tuple]:
-    """Function to groups or bin the ages together in 5 
-        year steps. Starts the sequence at age "0". 
+    """Function to groups or bin the ages together in 5
+        year steps. Starts the sequence at age "0".
         Will return the ages in a list of tuples.
         The 0th position of the tuple being the lower limit
         of the age bin, the 1st position of the tuple being
@@ -36,7 +37,7 @@ def get_col_bins(col_nms: List[str]) -> List[tuple]:
     col_bins = [(s, f) for s, f in zip(cols_start, cols_fin)]
     # Again adding "90+", doubling it so it's doubled, like the other tuples
     col_bins.append((cols_start[-1:]*2))
-    # TODO: make this more intelligent. Only if there is one col name left over it should be doubled. 
+    # TODO: make this more intelligent. Only if there is one col name left over it should be doubled.
     return col_bins
 
 
@@ -67,7 +68,7 @@ def served_proportions_disagg(pop_df: pd.DataFrame,
     """Calculates the number of people in each category, as specified by the column
         (e.g age range, or disability status) who are served and not served by
         public transport, and gives those as a proportion of the total.
-        
+
         Note: the numeric values in the dataframe are return as strings for
         formatting reasons
 
@@ -88,7 +89,7 @@ def served_proportions_disagg(pop_df: pd.DataFrame,
         ii) the number served by public transport
         iii) the proportion who are served by public transport
         iv) the proportion who are not served by public transport
-    
+
     """
     # First list the age bin columns
 
