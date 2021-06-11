@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -33,7 +34,7 @@ release = '1.0'
 extensions = ['myst_parser',
               'sphinx_rtd_theme',
               'sphinx.ext.napoleon'
-]
+              ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
