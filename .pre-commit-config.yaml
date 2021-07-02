@@ -10,10 +10,10 @@ repos:
     -   id: fix-encoding-pragma
     -   id: requirements-txt-fixer
     -   id: sort-simple-yaml
--   repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.27.1
-    hooks:
-    -   id: markdownlint
+# -   repo: https://github.com/igorshubovych/markdownlint-cli
+#     rev: v0.27.1
+#     hooks:
+#     -   id: markdownlint
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.5.7
     hooks:
