@@ -187,7 +187,8 @@ def _grab_zip(file_nm: str, zip_link, zip_path: PathLike):
     Args:
         file_nm (str): the name of the file without extension
         zip_link (str): URI to the zip to be downloaded
-        zip_path (PathLike): path/to/the/write/directory, e.g. '/data/'
+        zip_path (PathLike): path/to/the/write/directory/file.zip,
+                e.g. '/data/whatever.zip'
     """
     # Grab the zipfile from URI
     print(f"Dowloading {file_nm} from {zip_link}")

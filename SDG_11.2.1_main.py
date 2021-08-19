@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Core imports
 import os
+from zipfile import ZipFile
+import re
 
 # Third party imports
 import geopandas as gpd
@@ -71,8 +73,12 @@ for url in source_urls:
     re_pattern = re.compile("\/([a-zA-Z0-9_]*\.zip)")
     file_name = re.search(re_pattern, url[:-1])
     file_name = file_name.group(1)
-    save_path = os.path.join("data\population_estimates", file_name)
-    _grab_zip(file_nm=file_name, zip_link=url, zip_path=save_path)
+    save_path = os.path.join("data", file_name)
+    di._grab_zip(file_nm=file_name, zip_link=url, zip_path=save_path)
+    # di._extract_zip(file_nm: str, csv_nm: str, zip_path=save_path, csv_path: PathLike)
+    with ZipFile(save_path, 'r') as zipObj:
+        # Extract all the contents of zip file in current directory
+        zipObj.extractall()
 
 Wmids_pop_df = pd.read_csv(os.path.join
                            (DATA_DIR,
