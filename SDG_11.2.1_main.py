@@ -58,7 +58,6 @@ just_birmingham_poly = (gs.get_polygons_of_loccode(
                         search="Birmingham"))
 
 # Creating a Geo Dataframe of only stops in Birmingham
-
 birmingham_stops_geo_df = (gs.find_points_in_poly
                            (geo_df=stops_geo_df,
                             polygon_obj=just_birmingham_poly))
@@ -69,16 +68,20 @@ pop_est_data_sources = open(os.path.join("data",
                                          "population_estimates_data_sources.txt"))
 source_urls = pop_est_data_sources.readlines()
 
+# Grabbing the filename from the URL
+re_pattern = re.compile("\/([a-zA-Z0-9_]*\.zip)")
 for url in source_urls:
-    re_pattern = re.compile("\/([a-zA-Z0-9_]*\.zip)")
     file_name = re.search(re_pattern, url[:-1])
     file_name = file_name.group(1)
+    # Creating a save path to write zip locally
     save_path = os.path.join("data", file_name)
+    # Using the grab zip method to download zip
     di._grab_zip(file_nm=file_name, zip_link=url, zip_path=save_path)
-    # di._extract_zip(file_nm: str, csv_nm: str, zip_path=save_path, csv_path: PathLike)
-    with ZipFile(save_path, 'r') as zipObj:
+    # Extracting the zip
+    with ZipFile(file=save_path, mode='r') as zipObj:
         # Extract all the contents of zip file in current directory
         zipObj.extractall()
+    break
 
 Wmids_pop_df = pd.read_csv(os.path.join
                            (DATA_DIR,
