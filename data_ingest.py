@@ -126,7 +126,7 @@ def _csv_to_df(file_nm: str, csv_path: PathLike, dtypes: Optional[Dict]) -> pd.D
     if dtypes:
         cols = list(dtypes.keys())
         tic = perf_counter()
-        pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes, storage_options={"token": token})
+        pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes, encoding_errors='ignore', storage_options={"token": token})
         toc = perf_counter()
         print(f"Time taken for csv reading is {toc - tic:.2f} seconds")
     else:
