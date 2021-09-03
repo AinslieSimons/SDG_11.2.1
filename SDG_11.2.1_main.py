@@ -331,11 +331,11 @@ rur_df = bham_pop_df[bham_pop_df.urb_rur_class == "rural"]
 # Because these dfs a filtered to fewer rows, the pop_in_poly_df must be
 # filtered in the same way
 urb_pop_in_poly_df = (urb_df.merge(pop_in_poly_df,
-                      on="OA11CD", how="left")
+                                   on="OA11CD", how="left")
                       .loc[:, ['OA11CD', 'pop_count_y']])
 urb_pop_in_poly_df.rename(columns={'pop_count_y': 'pop_count'}, inplace=True)
 rur_pop_in_poly_df = (rur_df.merge(pop_in_poly_df,
-                      on="OA11CD", how="left")
+                                   on="OA11CD", how="left")
                       .loc[:, ['OA11CD', 'pop_count_y']])
 rur_pop_in_poly_df.rename(columns={'pop_count_y': 'pop_count'}, inplace=True)
 

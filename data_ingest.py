@@ -4,6 +4,7 @@ import os
 import json
 from functools import lru_cache
 from time import perf_counter
+from io import StringIO
 
 # Third party imports for this module
 import geopandas as gpd
@@ -13,9 +14,15 @@ from shapely.geometry import Point
 from zipfile import ZipFile
 import pyarrow.feather as feather
 from typing import List, Dict, Optional, Union
+import gcsfs
 
 # Defining Custom Types
 PathLike = Union[str, bytes, os.PathLike]
+
+# Create Google Cloud file storage object
+token="/home/james/Desktop/sdg-11-2-1-6e8a36aa3b64.json"
+fs = gcsfs.GCSFileSystem(project="sdg-11-2-1", token=token)
+cloud_bucket = "11-2-1-all-data"
 
 
 def any_to_pd(file_nm: str,
@@ -70,7 +77,7 @@ def any_to_pd(file_nm: str,
     for i in range(len(load_order)):
         # Indexing with i because the list loading in the wrong order
         data_file_nm = load_order[i]
-        data_file_path = _make_data_path("data", data_file_nm)
+        data_file_path = _make_data_path(cloud_bucket, data_file_nm)
         if _persistent_exists(data_file_path):
             # Check if each persistent file exists
             # load the persistent file by dispatching the correct function
@@ -115,10 +122,11 @@ def _feath_to_df(file_nm: str, feather_path: PathLike) -> pd.DataFrame:
 
 def _csv_to_df(file_nm: str, csv_path: PathLike, dtypes: Optional[Dict]) -> pd.DataFrame:
     print(f"Reading {file_nm}.csv from {csv_path}.")
+    csv_path = "gs://"+csv_path
     if dtypes:
         cols = list(dtypes.keys())
         tic = perf_counter()
-        pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes)
+        pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes, storage_options={"token": token})
         toc = perf_counter()
         print(f"Time taken for csv reading is {toc - tic:.2f} seconds")
     else:
@@ -229,7 +237,7 @@ def _delete_junk(file_nm: str, zip_path: PathLike):
     os.remove(zip_path)
 
 
-@lru_cache
+# @lru_cache
 def _make_data_path(*data_dir_files: str) -> PathLike:
     """Makes a relative path pointing to the data directory.
 
@@ -249,12 +257,12 @@ def _make_data_path(*data_dir_files: str) -> PathLike:
     return data_path
 
 
-@lru_cache
+# @lru_cache
 def _persistent_exists(persistent_file_path):
     """Checks if a persistent file already exists or not.
         Since persistent files will be Apache feather format
         currently the function just checks for those"""
-    if os.path.isfile(persistent_file_path):
+    if fs.exists(persistent_file_path):
         print(f"{persistent_file_path} already exists")
         return True
     else:
@@ -325,7 +333,17 @@ def geo_df_from_geospatialfile(path_to_file, crs='epsg:27700'):
         Returns:
             Geopandas Dataframe
             """
-    geo_df = gpd.read_file(path_to_file)
+    path_to_file = "11-2-1-all-data/LSOA_shp/Lower_Layer_Super_Output_Areas__December_2011__Boundaries_EW_BGC.shp"
+    
+    with fs.open(path_to_file, "rb") as filebytes:
+        file = bytes_to_stringIO(filebytes)
+        geo_df = gpd.read_file(file)
     if geo_df.crs != crs:
         geo_df = geo_df.to_crs('epsg:27700')
     return geo_df
+
+def bytes_to_stringIO(bytes_obj):
+
+    file = StringIO(bytes_obj.read().decode("UTF-8"))
+    return file
+
