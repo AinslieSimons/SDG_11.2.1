@@ -114,7 +114,12 @@ def _feath_to_df(file_nm: str, feather_path: PathLike) -> pd.DataFrame:
     """
     if write_to == "bucket":
         with fs.open(feather_path, 'rb') as f:
+            print(f"Reading {file_nm}.feather from {feather_path}.")
+            tic = perf_counter()
             pd_df = pd.read_feather(f)
+            toc = perf_counter()
+            print(f"""Time taken for {file_nm}.feather
+                    reading is {toc - tic:.2f} seconds""")
     elif write_to == "local":
         print(f"Reading {file_nm}.feather from {feather_path}.")
         tic = perf_counter()
@@ -366,12 +371,20 @@ def geo_df_from_geospatialfile(path_to_file, crs='epsg:27700'):
             """
     path_to_file = "11-2-1-all-data/LSOA_shp/Lower_Layer_Super_Output_Areas__December_2011__Boundaries_EW_BGC.shp"
     
+    if write_to == "bucket":
+        dl_folder_bucket_tmp(folder_name)
+
     with fs.open(path_to_file, "rb") as filebytes:
         file = bytes_to_stringIO(filebytes)
         geo_df = gpd.read_file(file)
     if geo_df.crs != crs:
         geo_df = geo_df.to_crs('epsg:27700')
     return geo_df
+    
+def dl_folder_bucket_tmp(folder_name):
+    for file in fs.walk:
+        fs.get_file(file, "tmp/")
+
 
 def bytes_to_stringIO(bytes_obj):
 
