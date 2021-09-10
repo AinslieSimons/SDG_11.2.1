@@ -23,7 +23,8 @@ PathLike = Union[str, bytes, os.PathLike]
 token="/home/james/Desktop/sdg-11-2-1-6e8a36aa3b64.json"
 fs = gcsfs.GCSFileSystem(project="sdg-11-2-1", token=token)
 cloud_bucket = "11-2-1-all-data"
-
+# Set a Global config parameter to write to bucket for bucket-only code
+write_to = "bucket"
 
 def any_to_pd(file_nm: str,
               zip_link: str,
@@ -111,22 +112,43 @@ def _feath_to_df(file_nm: str, feather_path: PathLike) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Pandas dataframe read from the persistent feather file
     """
-    print(f"Reading {file_nm}.feather from {feather_path}.")
-    tic = perf_counter()
-    pd_df = pd.read_feather(feather_path)
-    toc = perf_counter()
-    print(f"""Time taken for {file_nm}.feather
+    if write_to == "bucket":
+        with fs.open(feather_path, 'rb') as f:
+            pd_df = pd.read_feather(f)
+    elif write_to == "local":
+        print(f"Reading {file_nm}.feather from {feather_path}.")
+        tic = perf_counter()
+        pd_df = pd.read_feather(feather_path)
+        toc = perf_counter()
+        print(f"""Time taken for {file_nm}.feather
           reading is {toc - tic:.2f} seconds""")
     return pd_df
 
 
-def _csv_to_df(file_nm: str, csv_path: PathLike, dtypes: Optional[Dict]) -> pd.DataFrame:
+def _csv_to_df(file_nm: str,
+               csv_path: PathLike,
+               dtypes: Optional[Dict]
+               ) -> pd.DataFrame:
+    """Used by the any_to_pd wrapper function
+        to read csvs and return a dataframe.
+
+    Args:
+        file_nm (str): [description]
+        csv_path (PathLike): [description]
+        dtypes (Optional[Dict]): [description]
+
+    Returns:
+        pd.DataFrame: A dataframe of the data contained in the csv
+    """
     print(f"Reading {file_nm}.csv from {csv_path}.")
     csv_path = "gs://"+csv_path
     if dtypes:
         cols = list(dtypes.keys())
         tic = perf_counter()
-        pd_df = pd.read_csv(csv_path, usecols=cols, dtype=dtypes, encoding_errors='ignore', storage_options={"token": token})
+        pd_df = pd.read_csv(csv_path, usecols=cols,
+                            dtype=dtypes,
+                            encoding_errors='ignore',
+                            storage_options={"token":token})
         toc = perf_counter()
         print(f"Time taken for csv reading is {toc - tic:.2f} seconds")
     else:
@@ -140,7 +162,6 @@ def _csv_to_df(file_nm: str, csv_path: PathLike, dtypes: Optional[Dict]) -> pd.D
 
 def _xls_to_df(file_nm: str, xl_path: PathLike, tab: str, dtypes: Optional[Dict]) -> pd.DataFrame:
     """Function to import of excel files and return a df
-
 
     Args:
         file_nm (str): [description]
@@ -264,10 +285,11 @@ def _persistent_exists(persistent_file_path):
         currently the function just checks for those"""
     if fs.exists(persistent_file_path):
         print(f"{persistent_file_path} already exists")
-        return True
+        exists = True
     else:
         print(f"{persistent_file_path} does not exist")
-        return False
+        exists = False
+    return exists
 
 
 def _pd_to_feather(pd_df: pd.DataFrame, current_file_path: PathLike):
@@ -278,11 +300,20 @@ def _pd_to_feather(pd_df: pd.DataFrame, current_file_path: PathLike):
     """
     feather_path = os.path.splitext(current_file_path)[0]+'.feather'
 
-    # TODO: this function should make use of _persistent_existsD
-    if not os.path.isfile(feather_path):
-        print(f"Writing Pandas dataframe to feather at {feather_path}")
-        feather.write_feather(pd_df, feather_path)
-    print("Feather already exists")
+    # Some code for writing to buckets specifically
+    if write_to == "bucket":
+        if not _persistent_exists(feather_path):
+            with fs.open(feather_path, 'wb') as f:
+                response = pd_df.to_feather(f)
+                print(f"Resonse from bucket = {response}")
+    # Code for writing out locally
+    elif write_to == "local":
+        # Check if there is a persistent feather file already
+        if not _persistent_exists(feather_path):
+            print(f"Writing Pandas dataframe to feather at {feather_path}")
+            feather.write_feather(pd_df, feather_path)
+        else:
+            print("Feather already exists")
 
 
 def geo_df_from_pd_df(pd_df, geom_x, geom_y, crs):
