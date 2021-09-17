@@ -373,7 +373,6 @@ def geo_df_from_geospatialfile(path_to_file, crs='epsg:27700'):
     
     if write_to == "bucket":
         dl_folder_bucket_tmp(folder_name)
-
     with fs.open(path_to_file, "rb") as filebytes:
         file = bytes_to_stringIO(filebytes)
         geo_df = gpd.read_file(file)
@@ -382,7 +381,7 @@ def geo_df_from_geospatialfile(path_to_file, crs='epsg:27700'):
     return geo_df
     
 def dl_folder_bucket_tmp(folder_name):
-    for file in fs.walk:
+    for file in fs.walk():
         fs.get_file(file, "tmp/")
 
 
